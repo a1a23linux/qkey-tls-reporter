@@ -1,0 +1,15 @@
+Q-Key TLS Regression Reporter
+Copyright 2026 a1a23linux and contributors
+
+Licensed under the Apache License, Version 2.0.
+
+The evidence recorder, observation schema and optional Python validator are
+adapted from the owner's Q-Key laboratory. The standalone TLS endpoint adapter,
+baseline comparison, loopback demonstration and release tooling were added for
+this public alpha. Private planning, host configuration and operational artifacts
+are excluded.
+
+The Go source imports only standard-library packages. Go's runtime and standard
+library are distributed under the BSD-style license reproduced in docs/GO-LICENSE.
+Optional Python packages are installed separately, not bundled or relicensed;
+their license information is recorded in docs/DEPENDENCIES.md.

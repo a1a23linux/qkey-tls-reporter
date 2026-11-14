@@ -1,0 +1,16 @@
+/bin/
+/results/
+/.venv/
+/.cache/
+/dist/
+__pycache__/
+*.pyc
+*.test
+coverage.out
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+.DS_Store

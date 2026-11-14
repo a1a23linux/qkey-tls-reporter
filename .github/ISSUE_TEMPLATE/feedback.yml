@@ -1,0 +1,27 @@
+name: Tried the tool
+description: Share a sanitized workflow and whether the reporter was useful.
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: What were you trying to check?
+      description: Use a generic description. Do not include private endpoints, certificates or raw production evidence.
+    validations:
+      required: true
+  - type: dropdown
+    id: reuse
+    attributes:
+      label: How have you used it?
+      options:
+        - Local demo only
+        - Tried an authorized staging endpoint once
+        - Used it more than once
+        - Added it to CI
+  - type: textarea
+    id: gap
+    attributes:
+      label: What was useful, missing, or already covered better by another tool?
+  - type: input
+    id: version
+    attributes:
+      label: Tool and Go versions

@@ -1,0 +1,16 @@
+name: Bug report
+description: Report a functional problem using a non-sensitive reproducer.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Sanitized reproduction and versions
+      description: Prefer a loopback fixture. Never attach private keys, credentials or unredacted endpoint evidence. Report vulnerabilities privately.
+    validations:
+      required: true

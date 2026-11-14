@@ -1,0 +1,170 @@
+# Q-Key TLS Regression Reporter
+
+A small, free tool for checking a TLS 1.3 connection against an explicit hybrid
+key-exchange policy and saving the evidence alongside CI results.
+
+**Research alpha — v0.1.0-alpha.1.** Tested on Linux with Go 1.27.4. No outside
+target or third-party interoperability claim is implied by the local tests.
+
+## Try it without a server
+
+Requires Go 1.27 or later; the Go CLI has no third-party module dependencies.
+
+```bash
+go build -trimpath -o bin/qkey-tls-reporter ./cmd/qkey-tls-reporter
+./bin/qkey-tls-reporter -demo -out results/demo
+```
+
+The demo runs real TLS connections over loopback using certificates and keys
+generated in memory. It records four separate outcomes:
+
+| Case | Recorded result |
+|---|---|
+| Hybrid negotiation, valid certificate | Pass |
+| Classical negotiation under require-hybrid | Fail, with changes from the first baseline |
+| Classical negotiation explicitly allowed | Pass |
+| Wrong certificate hostname | Fail |
+
+The demo exits 0 only when all four **expected outcomes** occurred. The individual
+negative bundles still record failures. Demo keys are never written to disk.
+
+## Check your staging endpoint
+
+Use only endpoints you own or have permission to test. This makes one TCP/TLS
+connection and sends no HTTP requests or application data.
+
+```bash
+./bin/qkey-tls-reporter \
+  -target staging.example.com:443 \
+  -policy require-hybrid \
+  -out results/first
+```
+
+`staging.example.com` is a placeholder; replace it with your own staging service.
+For a private CA or a connection by IP:
+
+```bash
+./bin/qkey-tls-reporter \
+  -target 127.0.0.1:9443 \
+  -servername staging.example.com \
+  -ca-file ./staging-ca.pem \
+  -policy require-hybrid \
+  -out results/second
+```
+
+`-ca-file` adds trusted public certificates to system trust. No client private key
+or authentication credential is requested. Certificate verification is always on.
+
+## Policies and exit codes
+
+- `require-hybrid` (default): the verified handshake must negotiate
+  `X25519MLKEM768`.
+- `allow-classical`: a verified TLS 1.3 handshake may use any of the offered groups.
+
+Both policies offer the same explicit set: `X25519MLKEM768`, `X25519`, `P-256`,
+and `P-384`. The policy evaluates the negotiated outcome. It is a CI gate, not a
+client configuration that removes all classical offers. TLS 1.2 is not supported.
+
+| Exit | Meaning |
+|---|---|
+| 0 | Verified handshake matched the selected policy, or the demo matched all expected outcomes |
+| 1 | Observed policy mismatch or certificate validation failure |
+| 2 | Configuration/output error or inconclusive network/handshake failure |
+
+A failed handshake does not prove that a server lacks PQ support. The tool keeps
+network, certificate and other handshake errors distinct in the artifact.
+
+## Compare a baseline
+
+```bash
+./bin/qkey-tls-reporter \
+  -target staging.example.com:443 \
+  -policy require-hybrid \
+  -baseline results/first/artifacts/tls.endpoint.json \
+  -out results/after-change
+```
+
+Baseline target, certificate name, policy and CA-input identity must match. Changes
+to group, TLS version, cipher suite, certificate verification and leaf fingerprint
+are recorded in the new artifact. Certificate rotation can be a legitimate change.
+**A baseline difference alone does not change the exit code**; the current policy
+and connection outcome determine it. Use only a baseline you trust; it is not
+authenticated by the reporter. System trust-store changes are not independently
+inventoried, and additional CA-input identity is based on the supplied PEM bytes.
+
+## Evidence output
+
+Every check creates a new private directory and refuses to overwrite an existing
+one. The directory contains:
+
+```text
+REPORT.md
+manifest.json
+SHA256SUMS
+artifacts/tls.endpoint.json
+observations/tls.endpoint.json
+```
+
+JSON includes the status/category, negotiated group, certificate-verification
+result, leaf fingerprint/signature algorithm, policy and bounded limitations.
+Evidence is unreviewed. Target names and error details may be confidential: the
+`results/` directory is Git-ignored. Review results before sharing them.
+
+Verify file integrity with standard Linux tools:
+
+```bash
+cd results/first
+sha256sum -c SHA256SUMS
+```
+
+An optional Python validator also checks the observation schema, manifest totals,
+confined evidence references and private-key PEM markers:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.txt
+.venv/bin/python scripts/validate_evidence.py results/first
+```
+
+Hashes detect changes relative to the recorded hashes. They do not establish who
+collected the evidence, whether the collector is trustworthy, or whether its
+conclusions are correct.
+
+## Scope and limits
+
+This release observes one connection from Go's TLS client to the reached TLS
+termination point. It does not enumerate every supported group or test other
+client implementations. A load balancer/CDN result says nothing about later hops.
+A hybrid key exchange does not establish a PQ certificate, data-at-rest protection,
+whole-product quantum safety, certification or compliance. This is an engineering
+aid, not a cryptographic assessment or production approval.
+
+The private lab dashboard, schedules, host configuration, customer reports, signing
+keys, private planning material and old container image are not part of this tool.
+
+## Development and feedback
+
+```bash
+make check
+make demo
+```
+
+`make check` formats, vets, race-tests and checks the release source for accidental
+private configuration/key material. Tests use loopback fixtures, not outside
+services. `.github/workflows/ci.yml` runs the same Go checks.
+
+Useful feedback: what workflow you tried, whether you ran it again or put it into
+CI, and what your existing tools already handle better. Use the feedback issue
+template and share a synthetic reproducer. Do not post private endpoints or raw
+production results. Security concerns can be reported via GitHub's private
+vulnerability reporting if the maintainer enables it; see [SECURITY.md](SECURITY.md).
+
+The reporter contains **no analytics, signup requirement, update check or telemetry
+calls**. The Go build/dependency installer and GitHub services have their own network
+behavior.
+
+## License
+
+Apache-2.0. Copyright 2026 a1a23linux and contributors.
+See [LICENSE](LICENSE) and [NOTICE](NOTICE). This alpha reuses Q-Key's original
+evidence recorder/schema/validator and adds a standalone endpoint adapter and demo.
