@@ -1,10 +1,18 @@
 # Q-Key TLS Regression Reporter
 
-A small, free tool for checking a TLS 1.3 connection against an explicit hybrid
-key-exchange policy and saving the evidence alongside CI results.
+A small, free command-line tool that checks one TLS 1.3 connection against a
+selected key-exchange policy. It verifies the server certificate, reports the
+negotiated group, and writes JSON results, a Markdown report and SHA-256 checksums
+to a local directory.
 
-**Research alpha — v0.1.0-alpha.1.** Tested on Linux with Go 1.27.4. No outside
-target or third-party interoperability claim is implied by the local tests.
+The default policy passes only when a verified connection negotiates
+`X25519MLKEM768`. An optional baseline records differences from a previous result;
+baseline differences alone do not fail the check.
+
+**Alpha — v0.1.0-alpha.1.** Tested on Linux with Go 1.27.4. Hybrid negotiation is
+tested with Go loopback fixtures. The optional Go/OpenSSL tests cover classical
+TLS 1.3, certificate failures and handshake rejection; they do not establish
+hybrid OpenSSL interoperability. See [validation](docs/VALIDATION.md).
 
 ## Try it without a server
 
@@ -62,14 +70,20 @@ or authentication credential is requested. Certificate verification is always on
 - `allow-classical`: a verified TLS 1.3 handshake may use any of the offered groups.
 
 Both policies offer the same explicit set: `X25519MLKEM768`, `X25519`, `P-256`,
-and `P-384`. The policy evaluates the negotiated outcome. It is a CI gate, not a
-client configuration that removes all classical offers. TLS 1.2 is not supported.
+and `P-384`. The policy evaluates the negotiated outcome after the handshake;
+classical groups remain in the client's offer. TLS 1.2 is not supported.
 
 | Exit | Meaning |
 |---|---|
 | 0 | Verified handshake matched the selected policy, or the demo matched all expected outcomes |
 | 1 | Observed policy mismatch or certificate validation failure |
 | 2 | Configuration/output error or inconclusive network/handshake failure |
+
+These exit codes let a CI job fail on a policy mismatch or certificate error,
+and distinguish either from an inconclusive check. To retain results alongside
+CI logs, configure your workflow to run the CLI and upload its output directory.
+The bundled CI workflow runs local fixtures and checks demo checksums; it does
+not scan a deployment or upload evidence bundles.
 
 A failed handshake does not prove that a server lacks PQ support. The tool keeps
 network, certificate and other handshake errors distinct in the artifact.
@@ -139,9 +153,6 @@ A hybrid key exchange does not establish a PQ certificate, data-at-rest protecti
 whole-product quantum safety, certification or compliance. This is an engineering
 aid, not a cryptographic assessment or production approval.
 
-The private lab dashboard, schedules, host configuration, customer reports, signing
-keys, private planning material and old container image are not part of this tool.
-
 ## Development and feedback
 
 ```bash
@@ -150,10 +161,13 @@ make demo
 make interop  # optional: requires OpenSSL on PATH
 ```
 
-`make check` formats, vets, race-tests and checks the release source for accidental
-private configuration/key material. Tests use loopback fixtures, not outside
-services. The optional [OpenSSL interoperability suite](docs/INTEROPERABILITY.md)
-adds real cross-stack loopback checks. `.github/workflows/ci.yml` includes both.
+`make check` checks Go formatting, runs `go vet`, race-enabled Go tests, the
+release-source pattern check and Python release-tool tests. Tests use loopback
+fixtures, not outside services. The optional
+[OpenSSL interoperability suite](docs/INTEROPERABILITY.md) adds the seven
+cross-stack cases listed in that document. `.github/workflows/ci.yml` runs both
+commands and the demo. Source pattern checks do not guarantee that all sensitive
+material has been detected.
 
 Useful feedback: what workflow you tried, whether you ran it again or put it into
 CI, and what your existing tools already handle better. Use the feedback issue

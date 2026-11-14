@@ -46,5 +46,7 @@ private 58-check nightly lab until that lab explicitly integrates and verifies i
 - BoringSSL, NSS, Java and Windows SChannel integrations.
 - Wider version/platform matrices and behavior behind real staging proxies.
 
-These remain untested by this suite. GitHub CI includes make interop; remote CI
-execution is not established until the changes are published and the workflow runs.
+These remain untested by this suite. GitHub CI includes `make interop`;
+[run 43632016088](https://github.com/a1a23linux/qkey-tls-reporter/actions/runs/43632016088)
+completed successfully for commit `3a113a3949bb6c3f059f18d8deb30a404d96d15b`.
+That result does not extend the suite's coverage beyond the cases listed above.

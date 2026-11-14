@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Clarify the current single-connection policy check, local output and CI setup;
+  scope validation claims to recorded tests and update the publishing guidance for
+  the existing repository.
+
 - Add optional make interop: seven loopback Go/OpenSSL expected-outcome checks,
   covering classical TLS 1.3, certificate rejection and a hybrid-only server's
   rejection of a classical client. Hybrid OpenSSL negotiation remains untested.

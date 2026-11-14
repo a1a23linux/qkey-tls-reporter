@@ -10,4 +10,11 @@ for network, certificate and policy failures when behavior changes. Keep the
 optional validator compatible with the emitted evidence format.
 
 Changes to public JSON fields, policy meaning or exit codes need documentation.
+Public descriptions must match implemented behavior. Describe planned features as
+planned, and name the tested versions, platforms and cases when discussing
+validation. Keep endpoint capability, an observed negotiated connection and
+server enforcement distinct. Do not infer automatic CI artifact uploads from
+local file output, or claim novelty, comparative advantages, certification or
+production readiness without supporting evidence.
+
 Contributions are provided under the repository's Apache-2.0 license.

@@ -25,8 +25,7 @@ Checks completed:
 
 The initial local tests do not establish performance, arbitrary-stack interoperability,
 production readiness, cryptographic assessment or certification. No public endpoint
-was scanned for this validation. GitHub CI awaits publication. Runtime analytics
-are not implemented.
+was scanned for this validation. Runtime analytics are not implemented.
 
 The release includes source only. Generated evidence, environments and build
 outputs used in preparation are excluded from the public source package.
@@ -34,4 +33,10 @@ outputs used in preparation are excluded from the public source package.
 Development update, November 14: the optional make interop suite passed seven
 real Go 1.27.4 / OpenSSL 3.0.13 loopback cases. See INTEROPERABILITY.md for the
 exact classical/certificate/rejection coverage and remaining hybrid/other-stack
-limitations. The changes are local until separately published.
+limitations.
+
+GitHub CI [run 43632016088](https://github.com/a1a23linux/qkey-tls-reporter/actions/runs/43632016088)
+completed successfully for commit `3a113a3949bb6c3f059f18d8deb30a404d96d15b`.
+That workflow runs `make check`, `make demo`, `make interop` and demo checksum
+checks. This records validation of that commit, not of later edits or outside
+endpoints. The workflow does not upload the generated evidence bundles.
