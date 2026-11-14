@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -60,9 +61,16 @@ type Comparison struct {
 }
 
 func Normalize(o Options) (Options, error) {
+	if strings.Contains(o.Target, "://") {
+		return o, errors.New("target must be host:port, not a URL")
+	}
 	host, port, err := net.SplitHostPort(o.Target)
 	if err != nil || host == "" || port == "" || strings.ContainsAny(host, "/\\\r\n\t ") {
 		return o, errors.New("target must be a host:port (use [IPv6]:port for IPv6); URLs are not accepted")
+	}
+	portNumber, portErr := strconv.Atoi(port)
+	if portErr != nil || strings.Trim(port, "0123456789") != "" || portNumber < 1 || portNumber > 65535 {
+		return o, errors.New("target port must be a number from 1 through 65535")
 	}
 	if o.ServerName == "" {
 		o.ServerName = host

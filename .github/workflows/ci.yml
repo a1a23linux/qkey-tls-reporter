@@ -18,6 +18,8 @@ jobs:
         run: make check
       - name: Run local demonstration
         run: make demo
+      - name: Go and OpenSSL loopback interoperability
+        run: make interop
       - name: Check demo evidence integrity
         run: |
           for bundle in results/demo/*; do

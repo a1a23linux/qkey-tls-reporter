@@ -134,7 +134,7 @@ func TestBaselineContextAndDifferences(t *testing.T) {
 }
 
 func TestInvalidOptions(t *testing.T) {
-	for _, o := range []probe.Options{{Target: "https://example.test"}, {Target: "example.test"}, {Target: "example.test:443", Policy: "anything", Timeout: time.Second}, {Target: "example.test:443", Timeout: 0}, {Target: "example.test:443", Timeout: 2 * time.Minute}} {
+	for _, o := range []probe.Options{{Target: "https://example.test", Timeout: time.Second}, {Target: "https://example.test:443", Timeout: time.Second}, {Target: "example.test", Timeout: time.Second}, {Target: "example.test:https", Timeout: time.Second}, {Target: "example.test:0", Timeout: time.Second}, {Target: "example.test:65536", Timeout: time.Second}, {Target: "example.test:443", Policy: "anything", Timeout: time.Second}, {Target: "example.test:443", Timeout: 0}, {Target: "example.test:443", Timeout: 2 * time.Minute}} {
 		if _, err := probe.Normalize(o); err == nil {
 			t.Fatalf("accepted invalid options %+v", o)
 		}

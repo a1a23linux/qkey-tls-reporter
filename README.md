@@ -147,11 +147,13 @@ keys, private planning material and old container image are not part of this too
 ```bash
 make check
 make demo
+make interop  # optional: requires OpenSSL on PATH
 ```
 
 `make check` formats, vets, race-tests and checks the release source for accidental
 private configuration/key material. Tests use loopback fixtures, not outside
-services. `.github/workflows/ci.yml` runs the same Go checks.
+services. The optional [OpenSSL interoperability suite](docs/INTEROPERABILITY.md)
+adds real cross-stack loopback checks. `.github/workflows/ci.yml` includes both.
 
 Useful feedback: what workflow you tried, whether you ran it again or put it into
 CI, and what your existing tools already handle better. Use the feedback issue

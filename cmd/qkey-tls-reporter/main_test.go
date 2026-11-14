@@ -59,8 +59,13 @@ func TestCLIDemoAndBadInput(t *testing.T) {
 		}
 	}
 	for _, args := range [][]string{{}, {"-demo", "-target", "example.test:443"}, {"-target", "https://example.test"}, {"unexpected"}} {
+		invalidOutput := filepath.Join(t.TempDir(), "must-not-exist")
+		args = append(args, "-out", invalidOutput)
 		if code := run(args, &out, &stderr); code != 2 {
 			t.Fatalf("invalid args %v exit %d", args, code)
+		}
+		if _, err := os.Stat(invalidOutput); !os.IsNotExist(err) {
+			t.Fatalf("invalid arguments created output: %v", err)
 		}
 	}
 }
